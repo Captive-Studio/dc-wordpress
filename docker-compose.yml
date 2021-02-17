@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:5.6.1-php7.4-apache
+    restart: always
+    environment:
+      - WORDPRESS_DB_HOST=wordpress-db:3306
+      - WORDPRESS_DB_USER=${MYSQL_USER:-wp}
+      - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD:-wp}
+      - WORDPRESS_DB_NAME=${MYSQL_DATABASE:-wp}
+      - WORDPRESS_TABLE_PREFIX=${TABLE_PREFIX:-wp_}
+    networks:
+      - traefik_default
+      - default
+    volumes:
+      - wp-content:/var/www/html/wp-content
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wordpress.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
+      - "traefik.http.routers.wordpress.entrypoints=web"
+      - "traefik.http.routers.wordpress.middlewares=redirect-to-https"
+      - "traefik.http.routers.wordpress-tls.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
+      - "traefik.http.routers.wordpress-tls.entrypoints=websecure"
+      - "traefik.http.routers.wordpress-tls.tls.certresolver=letsencrypt-tls"
+      - "traefik.http.routers.wordpress-tls-wp.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wp-`)"
+      - "traefik.http.routers.wordpress-tls-wp.entrypoints=websecure"
+      - "traefik.http.routers.wordpress-tls-wp.tls.certresolver=letsencrypt-tls"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.routers.wordpress-tls.middlewares=wordpress-stripprefix"
+      - "traefik.http.middlewares.wordpress-stripprefix.stripprefix.prefixes=/wordpress"
+    depends_on:
+      - wordpress-db
+
+  wordpress-db:
+    image: mariadb:10.5
+    restart: always
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-wp}
+      - MYSQL_USER=${MYSQL_USER:-wp}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-wp}
+    expose:
+      - "3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+volumes:
+  wp-content:
+  mariadb-data:
+
+networks:
+  traefik_default:
+    external: true

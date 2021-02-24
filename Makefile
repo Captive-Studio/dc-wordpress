@@ -11,9 +11,15 @@ stop: docker-compose-stop ##- Stop
 .PHONY: logs
 logs: docker-compose-logs
 
-.PHONY: set-local-docker-compose-files
-set-local-docker-compose-files:
-	$(eval compose_files=-f docker-compose.yml -f docker-compose.local.yml)
+backup: dump-mariadb dump-wp-content
 
-# Add local override file before calling target (use: local-<target>)
-local-% : set-local-docker-compose-files % ;
+dump-wp-content: environment
+	@$(load_env); echo "*** Dumping wp-content ***"
+	@$(load_env); docker exec -i wordpress_wordpress_1 sh -c "tar -C /var/www/html/wp-content -czf - ." > wp-content.tgz
+
+dump-mariadb: environment
+	@$(load_env); echo "*** Dumping database '$$MYSQL_DATABASE' ***"
+	@$(load_env); docker exec -it wordpress_wordpress-db_1 mysqldump -h 127.0.0.1 -u $$MYSQL_USER \
+			--password=$$MYSQL_PASSWORD \
+			--no-tablespaces $$MYSQL_DATABASE | gzip > $$MYSQL_DATABASE.sql.gz
+	@$(load_env); echo "- database $$MYSQL_DATABASE => $$MYSQL_DATABASE.sql.gz"

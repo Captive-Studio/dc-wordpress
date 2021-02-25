@@ -22,13 +22,11 @@ services:
       - "traefik.http.routers.wordpress.middlewares=redirect-to-https"
       - "traefik.http.routers.wordpress-tls.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
       - "traefik.http.routers.wordpress-tls.entrypoints=websecure"
-      - "traefik.http.routers.wordpress-tls.tls.certresolver=letsencrypt-tls"
-      - "traefik.http.routers.wordpress-tls-wp.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wp-`)"
+      - "traefik.http.routers.wordpress-tls.tls.certresolver=default"
+      - "traefik.http.routers.wordpress-tls-wp.rule=Host(`${APP_FQDN:-localhost}`)"
       - "traefik.http.routers.wordpress-tls-wp.entrypoints=websecure"
-      - "traefik.http.routers.wordpress-tls-wp.tls.certresolver=letsencrypt-tls"
+      - "traefik.http.routers.wordpress-tls-wp.tls.certresolver=default"
       - "traefik.docker.network=traefik_default"
-      - "traefik.http.routers.wordpress-tls.middlewares=wordpress-stripprefix"
-      - "traefik.http.middlewares.wordpress-stripprefix.stripprefix.prefixes=/wordpress"
     depends_on:
       - wordpress-db
 

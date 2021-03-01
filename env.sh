@@ -16,6 +16,9 @@ case "$stage" in
 		EOF
 		;;
 
+	"staging")
+		;;
+
 	*)
 		echo "Undefined stage $stage" >&2
 		;;

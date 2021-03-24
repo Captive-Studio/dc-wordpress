@@ -4,6 +4,8 @@ services:
   wordpress:
     ports:
       - "8080:80"
+    volumes:
+      - ./wp-content:/var/www/html/wp-content
 
 networks:
   traefik_default:

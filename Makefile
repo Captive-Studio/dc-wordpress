@@ -41,3 +41,12 @@ restore-mariadb: environment
 
 console: environment
 	@$(load_env); docker exec -it wordpress_wordpress_1 /bin/bash
+
+restore-mariadb-staging-local: environment
+	@$(load_env); echo "*** Restoring database '$$MYSQL_DATABASE' ***"
+	@$(load_env); pv $$MYSQL_DATABASE.sql.gz | gunzip | \
+		sed \
+			-e 's|https://staging.spi.captive.fr|http://localhost:8080|g' \
+			-e 's|https:\\\\/\\\\/staging.spi.captive.fr|http:\\\\/\\\\/localhost:8080|g' \
+		| docker exec -i wordpress_wordpress-db_1 \
+		mysql -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD $$MYSQL_DATABASE

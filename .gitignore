@@ -1,2 +1,7 @@
 /*.env
 
+wp-content.tgz
+wp-content/
+wp.sql.gz
+
+.DS_Store

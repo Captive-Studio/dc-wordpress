@@ -27,6 +27,11 @@ docker-compose-logs: environment ##- Print containers logs
 	$(info *** Printing containers logs ***)
 	$(load_env); docker-compose ${compose_files} logs -f
 
+.PHONY: docker-compose-ps
+docker-compose-ps: environment ##- Print containers status
+	$(info *** Printing containers logs ***)
+	$(load_env); docker-compose ${compose_files} ps
+
 .PHONY: docker-compose-clean
 docker-compose-clean: environment ##- Stop and remove volumes
 	$(info *** Stopping containers and remove volumes ***)

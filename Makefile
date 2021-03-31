@@ -1,6 +1,10 @@
 default: help
 include *.mk
 
+check-requirements: wordpress-requirements ##- Check requirements
+	@$(call ensure_command,awk)
+	@[ "$$($(MAKE) --version | awk '/GNU Make/ { split($$3,a,"."); print a[1] }')" == "4" ] || (echo "Gnu Make 4.x is required"; exit 1)
+
 .PHONY: start
 start: docker-compose-pull docker-compose-start ##- Start
 .PHONY: deploy
@@ -9,44 +13,60 @@ deploy: docker-compose-pull docker-compose-deploy ##- Deploy (start remotely)
 stop: docker-compose-stop ##- Stop
 
 .PHONY: logs
-logs: docker-compose-logs
+logs: docker-compose-logs ##- Print logs
 
-backup: dump-mariadb dump-wp-content
-restore: restore-mariadb restore-wp-content
+.PHONY: backup
+backup: wordpress-dump-mariadb wordpress-dump-wp-content ##- Backup db and wp-content
+.PHONY: restore
+restore: wordpress-restore-mariadb wordpress-restore-wp-content ##- Restore db and wp-content
 
-dump-wp-content: environment
-	@$(load_env); echo "*** Dumping wp-content ***"
-	@$(load_env); docker exec -i wordpress_wordpress_1 sh -c "tar -C /var/www/html/wp-content -czf - ." > wp-content.tgz
+.PHONY: status
+status: docker-compose-ps ##- Print status
 
-dump-mariadb: environment
-	@$(load_env); echo "*** Dumping database '$$MYSQL_DATABASE' ***"
-	@$(load_env); docker exec -it wordpress_wordpress-db_1 mysqldump -h 127.0.0.1 -u $$MYSQL_USER \
-			--password=$$MYSQL_PASSWORD \
-			--no-tablespaces $$MYSQL_DATABASE | gzip > $$MYSQL_DATABASE.sql.gz
-	@$(load_env); echo "- database $$MYSQL_DATABASE => $$MYSQL_DATABASE.sql.gz"
+.PHONY: local-wordpress-restore-wp-content
+local-wordpress-restore-wp-content: ##- Restore wp-content locally
+local-wordpress-restore-wp-content: environment set-local-docker-compose-files
+	@$(load_env); echo "*** Restoring wp-content to local folder ***"
+	@$(load_env); pv wp-content.tgz | sudo tar -C ./wp-content -xzf - .
+	@$(load_env); docker exec wordpress_wordpress_1 chown -R www-data:www-data '/var/www/html/wp-content'
 
-restore-wp-content: environment
-	@$(load_env); echo "*** Restoring wp-content ***"
-	@$(load_env); pv wp-content.tgz | docker exec -i wordpress_wordpress_1 sh -c "tar -C /var/www/html/wp-content -xzf - ."
-	@$(load_env); docker exec wordpress_wordpress_1 chown -R www-data:www-data '/var/www/html/wp-content/*'
+.PHONY: local-allow-access-wp-content
+local-allow-access-wp-content: ##- Allow all access to wp-content files
+	@echo "Allowing permissions on wp-content files"
+	sudo chmod -R 777 wp-content
 
-restore-mariadb: environment
-	@$(load_env); echo "*** Restoring database '$$MYSQL_DATABASE' ***"
-	@$(load_env); pv $$MYSQL_DATABASE.sql.gz | gunzip | \
-		sed \
-			-e 's|http://localhost:8080|https://staging.spi.captive.fr|g' \
-			-e 's|http:\\\\/\\\\/localhost:8080|https:\\\\/\\\\/staging.spi.captive.fr|g' \
-		| docker exec -i wordpress_wordpress-db_1 \
-		mysql -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD $$MYSQL_DATABASE
+.PHONY: local-restrict-access-wp-content
+local-restrict-access-wp-content: ##- Restrict access to wp-content files
+	@echo "Restricting permissions on wp-content files"
+	sudo find wp-content -type d -exec chmod 755 {} \;
+	sudo find wp-content -type f -exec chmod 644 {} \;
 
-console: environment
-	@$(load_env); docker exec -it wordpress_wordpress_1 /bin/bash
+.PHONY: transfert-staging-to-default
+transfert-staging-to-default: ##- Migrate data from staging to default env
+transfert-staging-to-default: check-requirements
+	@$(MAKE) \
+		stage-staging \
+		check-stage-staging \
+		wordpress-dump-mariadb \
+		wordpress-dump-wp-content \
+		wordpress-convert-db-to-default
+	@$(MAKE) \
+		stage-default \
+		check-stage-default \
+		wordpress-restore-mariadb \
+		wordpress-restore-wp-content
 
-restore-mariadb-staging-local: environment
-	@$(load_env); echo "*** Restoring database '$$MYSQL_DATABASE' ***"
-	@$(load_env); pv $$MYSQL_DATABASE.sql.gz | gunzip | \
-		sed \
-			-e 's|https://staging.spi.captive.fr|http://localhost:8080|g' \
-			-e 's|https:\\\\/\\\\/staging.spi.captive.fr|http:\\\\/\\\\/localhost:8080|g' \
-		| docker exec -i wordpress_wordpress-db_1 \
-		mysql -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD $$MYSQL_DATABASE
+.PHONY: transfert-default-to-staging
+transfert-default-to-staging: ##- Migrate data from default to staging env
+transfert-default-to-staging: check-requirements
+	@$(MAKE) \
+		stage-default \
+		check-stage-default \
+		wordpress-dump-mariadb \
+		wordpress-dump-wp-content \
+		wordpress-convert-db-to-staging
+	@$(MAKE) \
+		stage-staging \
+		check-stage-staging \
+		wordpress-restore-mariadb \
+		wordpress-restore-wp-content

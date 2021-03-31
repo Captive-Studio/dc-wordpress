@@ -13,6 +13,7 @@ case "$stage" in
 		MYSQL_DATABASE=wp
 		MYSQL_USER=wp
 		MYSQL_PASSWORD=wp
+		WP_BASEURL=http://localhost:8080
 		EOF
 		;;
 

@@ -1,14 +1,20 @@
 default: help
 include makefiles/*.mk
 
+console: environment
+	@$(load_env); docker exec -it wordpress_wordpress_1 /bin/bash
+
+check-php-upload-max-filesize: environment
+	@$(load_env); docker exec wordpress_wordpress_1 php -i 2>&1 | grep upload_max_filesize
+
 check-requirements: wordpress-requirements ##- Check requirements
 	@$(call ensure_command,awk)
 	@[ "$$($(MAKE) --version | awk '/GNU Make/ { split($$3,a,"."); print a[1] }')" == "4" ] || (echo "Gnu Make 4.x is required"; exit 1)
 
 .PHONY: start
-start: docker-compose-pull docker-compose-start ##- Start
+start: docker-compose-build docker-compose-start ##- Start
 .PHONY: deploy
-deploy: docker-compose-pull docker-compose-deploy ##- Deploy (start remotely)
+deploy: docker-compose-build docker-compose-deploy ##- Deploy (start remotely)
 .PHONY: stop
 stop: docker-compose-stop ##- Stop
 

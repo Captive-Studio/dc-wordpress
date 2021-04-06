@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   wordpress:
-    image: wordpress:5.8.0-php7.4-apache
+    build: .
     restart: always
     environment:
       WORDPRESS_DB_HOST: wordpress-db:3306
@@ -10,6 +10,10 @@ services:
       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wp}
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wp}
       WORDPRESS_TABLE_PREFIX: ${TABLE_PREFIX:-wp_}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('FS_METHOD','direct');
+        @ini_set( 'upload_max_filesize' , '80M' );
+        @ini_set( 'post_max_size', '80M');
     volumes:
       - wp-content:/var/www/html/wp-content
     depends_on:

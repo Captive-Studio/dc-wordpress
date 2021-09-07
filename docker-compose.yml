@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   wordpress:
-    image: wordpress:5.6.1-php7.4-apache
+    image: wordpress:5.8.0-php7.4-apache
     restart: always
     environment:
       - WORDPRESS_DB_HOST=wordpress-db:3306
@@ -31,7 +31,7 @@ services:
       - wordpress-db
 
   wordpress-db:
-    image: mariadb:10.5
+    image: mariadb:10.6
     restart: always
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes

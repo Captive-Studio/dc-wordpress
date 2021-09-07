@@ -10,6 +10,7 @@ EOF
 case "$stage" in
 	"default")
 		cat <<-EOF
+		APP_FQDN=localhost
 		MYSQL_DATABASE=wp
 		MYSQL_USER=wp
 		MYSQL_PASSWORD=wp

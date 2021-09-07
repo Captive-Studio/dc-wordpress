@@ -1,9 +1,6 @@
 # https://github.com/kmmndr/makefile-collection
 
-define ensure_command
-	command -v $(1) > /dev/null || (echo "$(1) command is missing !"; exit 1)
-endef
-
+.PHONY: help
 help: ##- Show this help.
 	@echo 'Usage: make <target> (see target list below)'
 	@echo

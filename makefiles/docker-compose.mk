@@ -28,14 +28,14 @@ docker-compose-logs: environment ##- Print containers logs
 	$(load_env); docker-compose ${compose_files} logs -f
 
 .PHONY: docker-compose-ps
-docker-compose-ps: environment ##- Print containers status
-	$(info *** Printing containers logs ***)
+docker-compose-ps: environment ##- Print containers statuses
+	$(info *** Printing containers statuses ***)
 	$(load_env); docker-compose ${compose_files} ps
 
 .PHONY: docker-compose-clean
 docker-compose-clean: environment ##- Stop and remove volumes
 	$(info *** Stopping containers and remove volumes ***)
-	$(load_env); docker-compose ${compose_files} down -v
+	$(load_env); docker-compose ${compose_files} down -v --remove-orphans
 
 .PHONY: docker-compose-check-remote-env
 docker-compose-check-remote-env: environment ##- Check environment variables

@@ -1,3 +1,5 @@
+# https://github.com/kmmndr/makefile-collection
+
 .PHONY: set-local-docker-compose-files
 set-local-docker-compose-files:
 	$(eval compose_files=-f docker-compose.yml -f docker-compose.local.yml)

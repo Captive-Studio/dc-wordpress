@@ -1,10 +1,10 @@
 .PHONY: wordpress-requirements
 wordpress-requirements: ##- Check wordpress requirements
-	@$(call ensure_command,docker)
-	@$(call ensure_command,docker-compose)
-	@$(call ensure_command,gzip)
-	@$(call ensure_command,gunzip)
-	@$(call ensure_command,pv)
+	@$(call command_exist,docker)
+	@$(call command_exist,docker-compose)
+	@$(call command_exist,gzip)
+	@$(call command_exist,gunzip)
+	@$(call command_exist,pv)
 
 .PHONY: wordpress-dump-wp-content
 wordpress-dump-wp-content: environment

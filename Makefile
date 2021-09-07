@@ -1,5 +1,5 @@
 default: help
-include *.mk
+include makefiles/*.mk
 
 check-requirements: wordpress-requirements ##- Check requirements
 	@$(call ensure_command,awk)
@@ -22,6 +22,9 @@ restore: wordpress-restore-mariadb wordpress-restore-wp-content ##- Restore db a
 
 .PHONY: status
 status: docker-compose-ps ##- Print status
+
+.PHONY: clean
+clean: docker-compose-clean ##- Delete data
 
 .PHONY: local-wordpress-restore-wp-content
 local-wordpress-restore-wp-content: ##- Restore wp-content locally

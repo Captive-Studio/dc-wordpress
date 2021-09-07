@@ -5,11 +5,11 @@ services:
     image: wordpress:5.8.0-php7.4-apache
     restart: always
     environment:
-      - WORDPRESS_DB_HOST=wordpress-db:3306
-      - WORDPRESS_DB_USER=${MYSQL_USER:-wp}
-      - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD:-wp}
-      - WORDPRESS_DB_NAME=${MYSQL_DATABASE:-wp}
-      - WORDPRESS_TABLE_PREFIX=${TABLE_PREFIX:-wp_}
+      WORDPRESS_DB_HOST: wordpress-db:3306
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wp}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wp}
+      WORDPRESS_TABLE_PREFIX: ${TABLE_PREFIX:-wp_}
     volumes:
       - wp-content:/var/www/html/wp-content
     depends_on:

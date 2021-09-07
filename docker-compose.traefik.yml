@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  wordpress:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wordpress.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
+      - "traefik.http.routers.wordpress.entrypoints=web"
+      - "traefik.http.routers.wordpress.middlewares=redirect-to-https"
+      - "traefik.http.routers.wordpress-tls.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
+      - "traefik.http.routers.wordpress-tls.entrypoints=websecure"
+      - "traefik.http.routers.wordpress-tls.tls.certresolver=default"
+      - "traefik.http.routers.wordpress-tls-wp.rule=Host(`${APP_FQDN:-localhost}`)"
+      - "traefik.http.routers.wordpress-tls-wp.entrypoints=websecure"
+      - "traefik.http.routers.wordpress-tls-wp.tls.certresolver=default"
+      - "traefik.docker.network=traefik_default"
+    networks:
+      - traefik_default
+      - default
+
+networks:
+  traefik_default:
+    external: true

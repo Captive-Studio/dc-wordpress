@@ -10,23 +10,8 @@ services:
       - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD:-wp}
       - WORDPRESS_DB_NAME=${MYSQL_DATABASE:-wp}
       - WORDPRESS_TABLE_PREFIX=${TABLE_PREFIX:-wp_}
-    networks:
-      - traefik_default
-      - default
     volumes:
       - wp-content:/var/www/html/wp-content
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.wordpress.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
-      - "traefik.http.routers.wordpress.entrypoints=web"
-      - "traefik.http.routers.wordpress.middlewares=redirect-to-https"
-      - "traefik.http.routers.wordpress-tls.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
-      - "traefik.http.routers.wordpress-tls.entrypoints=websecure"
-      - "traefik.http.routers.wordpress-tls.tls.certresolver=default"
-      - "traefik.http.routers.wordpress-tls-wp.rule=Host(`${APP_FQDN:-localhost}`)"
-      - "traefik.http.routers.wordpress-tls-wp.entrypoints=websecure"
-      - "traefik.http.routers.wordpress-tls-wp.tls.certresolver=default"
-      - "traefik.docker.network=traefik_default"
     depends_on:
       - wordpress-db
 
@@ -46,7 +31,3 @@ services:
 volumes:
   wp-content:
   mariadb-data:
-
-networks:
-  traefik_default:
-    external: true

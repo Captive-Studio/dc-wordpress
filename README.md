@@ -1,2 +1,2 @@
-# SPI
+# docker-compose/wordpress
 

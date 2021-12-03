@@ -22,7 +22,7 @@ wordpress-dump-mariadb: environment
 .PHONY: wordpress-restore-wp-content
 wordpress-restore-wp-content: environment
 	@$(load_env); echo "*** Restoring wp-content ***"
-	@$(load_env); pv wp-content.tgz | docker exec -i wordpress_wordpress_1 sh -c "tar -C /var/www/html/wp-content -xzf - ."
+	@$(load_env); pv wp-content.tgz | docker exec -i wordpress_wordpress_1 sh -c "tar -C /var/www/html/wp-content -xzf -"
 	@$(load_env); docker exec wordpress_wordpress_1 chown -R www-data:www-data '/var/www/html/wp-content'
 	@$(load_env); docker exec wordpress_wordpress_1 chmod -R 755 '/var/www/html/wp-content'
 

@@ -36,7 +36,7 @@ clean: docker-compose-clean ##- Delete data
 local-wordpress-restore-wp-content: ##- Restore wp-content locally
 local-wordpress-restore-wp-content: environment set-local-docker-compose-files
 	@$(load_env); echo "*** Restoring wp-content to local folder ***"
-	@$(load_env); pv wp-content.tgz | sudo tar -C ./wp-content -xzf - .
+	@$(load_env); pv wp-content.tgz | sudo tar -C ./wp-content -xzf -
 	@$(load_env); docker exec wordpress_wordpress_1 chown -R www-data:www-data '/var/www/html/wp-content'
 
 .PHONY: local-allow-access-wp-content

@@ -5,6 +5,7 @@ stage=$1
 
 cat <<EOF
 COMPOSE_PROJECT_NAME=wordpress
+# COMPOSE_COMPATIBILITY=true
 EOF
 
 case "$stage" in

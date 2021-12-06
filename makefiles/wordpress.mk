@@ -6,15 +6,18 @@ wordpress-requirements: ##- Check wordpress requirements
 	@$(call command_exist,gunzip)
 	@$(call command_exist,pv)
 
+# wordpress_wordpress_1 => wordpress-production_wordpress_1
+# wordpress_wordpress-db_1 => wordpress-production_wordpress-db_1
+
 .PHONY: wordpress-dump-wp-content
 wordpress-dump-wp-content: environment
 	@$(load_env); echo "*** Dumping wp-content ***"
-	@$(load_env); docker exec -i wordpress_wordpress_1 sh -c "tar -C /var/www/html/wp-content -czf - ." | pv > wp-content.tgz
+	@$(load_env); docker exec -i wordpress-$${STAGE}_wordpress_1 sh -c "tar -C /var/www/html/wp-content -czf - ." | pv > wp-content.tgz
 
 .PHONY: wordpress-dump-mariadb
 wordpress-dump-mariadb: environment
 	$(load_env); echo "*** Dumping database '$$MYSQL_DATABASE' ***"
-	$(load_env); docker exec -i wordpress_wordpress-db_1 mysqldump -h 127.0.0.1 -u $$MYSQL_USER \
+	$(load_env); docker exec -i wordpress-$$STAGE_wordpress-db_1 mysqldump -h 127.0.0.1 -u $$MYSQL_USER \
 			--password=$$MYSQL_PASSWORD \
 			--no-tablespaces $$MYSQL_DATABASE | pv | gzip > $$MYSQL_DATABASE.sql.gz
 	$(load_env); echo "- database $$MYSQL_DATABASE => $$MYSQL_DATABASE.sql.gz"
@@ -22,20 +25,20 @@ wordpress-dump-mariadb: environment
 .PHONY: wordpress-restore-wp-content
 wordpress-restore-wp-content: environment
 	@$(load_env); echo "*** Restoring wp-content ***"
-	@$(load_env); pv wp-content.tgz | docker exec -i wordpress_wordpress_1 sh -c "tar -C /var/www/html/wp-content -xzf -"
-	@$(load_env); docker exec wordpress_wordpress_1 chown -R www-data:www-data '/var/www/html/wp-content'
-	@$(load_env); docker exec wordpress_wordpress_1 chmod -R 755 '/var/www/html/wp-content'
+	@$(load_env); pv wp-content.tgz | docker exec -i wordpress-$${STAGE}_wordpress_1 sh -c "tar -C /var/www/html/wp-content -xzf -"
+	@$(load_env); docker exec wordpress-$${STAGE}_wordpress_1 chown -R www-data:www-data '/var/www/html/wp-content'
+	@$(load_env); docker exec wordpress-$${STAGE}_wordpress_1 chmod -R 755 '/var/www/html/wp-content'
 
 .PHONY: wordpress-restore-mariadb
 wordpress-restore-mariadb: environment
 	@$(load_env); echo "*** Restoring database '$$MYSQL_DATABASE' ***"
 	@$(load_env); pv $$MYSQL_DATABASE.sql.gz | gunzip | \
-		docker exec -i wordpress_wordpress-db_1 \
+		docker exec -i wordpress-$${STAGE}_wordpress-db_1 \
 			mysql -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD $$MYSQL_DATABASE
 
 .PHONY: wordpress-console
 wordpress-console: environment
-	@$(load_env); docker exec -it wordpress_wordpress_1 /bin/bash
+	@$(load_env); docker exec -it wordpress-$${STAGE}_wordpress_1 /bin/bash
 
 .PHONY: wordpress-dbconsole
 wordpress-dbconsole: environment

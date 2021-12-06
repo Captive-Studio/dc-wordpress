@@ -19,7 +19,7 @@ case "$stage" in
 		EOF
 		;;
 
-	"staging")
+	"staging"|"production")
 		;;
 
 	*)

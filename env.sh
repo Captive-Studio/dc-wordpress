@@ -4,8 +4,9 @@ set -eu
 stage=$1
 
 cat <<EOF
-COMPOSE_PROJECT_NAME=wordpress
+COMPOSE_PROJECT_NAME=wordpress-$stage
 # COMPOSE_COMPATIBILITY=true
+STAGE=$stage
 EOF
 
 case "$stage" in

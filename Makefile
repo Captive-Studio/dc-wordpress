@@ -79,3 +79,18 @@ transfert-default-to-staging: check-requirements
 		check-stage-staging \
 		wordpress-restore-mariadb \
 		wordpress-restore-wp-content
+
+.PHONY: transfert-default-to-production
+transfert-default-to-production: ##- Migrate data from default to production env
+transfert-default-to-production: check-requirements
+	@$(MAKE) \
+		stage-default \
+		check-stage-default \
+		wordpress-dump-mariadb \
+		wordpress-dump-wp-content \
+		wordpress-convert-db-to-production
+	@$(MAKE) \
+		stage-production \
+		check-stage-production \
+		wordpress-restore-mariadb \
+		wordpress-restore-wp-content

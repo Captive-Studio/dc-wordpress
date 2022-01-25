@@ -4,15 +4,12 @@ services:
   wordpress:
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.wordpress-${STAGE}.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
+      - "traefik.http.routers.wordpress-${STAGE}.rule=Host(`${APP_FQDN:-localhost}`)"
       - "traefik.http.routers.wordpress-${STAGE}.entrypoints=web"
       - "traefik.http.routers.wordpress-${STAGE}.middlewares=redirect-to-https"
-      - "traefik.http.routers.wordpress-${STAGE}-tls.rule=Host(`${APP_FQDN:-localhost}`) && PathPrefix(`/wordpress`)"
+      - "traefik.http.routers.wordpress-${STAGE}-tls.rule=Host(`${APP_FQDN:-localhost}`)"
       - "traefik.http.routers.wordpress-${STAGE}-tls.entrypoints=websecure"
       - "traefik.http.routers.wordpress-${STAGE}-tls.tls.certresolver=default"
-      - "traefik.http.routers.wordpress-${STAGE}-tls-wp.rule=Host(`${APP_FQDN:-localhost}`)"
-      - "traefik.http.routers.wordpress-${STAGE}-tls-wp.entrypoints=websecure"
-      - "traefik.http.routers.wordpress-${STAGE}-tls-wp.tls.certresolver=default"
       - "traefik.docker.network=traefik_default"
     networks:
       - traefik_default

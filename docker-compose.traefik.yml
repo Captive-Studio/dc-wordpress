@@ -9,7 +9,7 @@ services:
       - "traefik.http.routers.wordpress-${STAGE}.middlewares=redirect-to-https"
       - "traefik.http.routers.wordpress-${STAGE}-tls.rule=Host(`${APP_FQDN:-localhost}`)"
       - "traefik.http.routers.wordpress-${STAGE}-tls.entrypoints=websecure"
-      - "traefik.http.routers.wordpress-${STAGE}-tls.tls.certresolver=default"
+      - "traefik.http.routers.wordpress-${STAGE}-tls.tls.certresolver=default-tls"
       - "traefik.docker.network=traefik_default"
     networks:
       - traefik_default

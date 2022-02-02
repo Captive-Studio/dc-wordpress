@@ -17,7 +17,7 @@ wordpress-dump-wp-content: environment
 .PHONY: wordpress-dump-mariadb
 wordpress-dump-mariadb: environment
 	$(load_env); echo "*** Dumping database '$$MYSQL_DATABASE' ***"
-	$(load_env); docker exec -i wordpress-$$STAGE_wordpress-db_1 mysqldump -h 127.0.0.1 -u $$MYSQL_USER \
+	$(load_env); docker exec -i wordpress-$${STAGE}_wordpress-db_1 mysqldump -h 127.0.0.1 -u $$MYSQL_USER \
 			--password=$$MYSQL_PASSWORD \
 			--no-tablespaces $$MYSQL_DATABASE | pv | gzip > $$MYSQL_DATABASE.sql.gz
 	$(load_env); echo "- database $$MYSQL_DATABASE => $$MYSQL_DATABASE.sql.gz"

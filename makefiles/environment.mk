@@ -11,6 +11,11 @@ check-stage-%: environment
 	@$(eval expected_stage=$*)
 	@[ "${stage}" = "${expected_stage}" ] || (echo "Expected stage ${expected_stage}, actual ${stage}"; exit 1)
 
+check-stage: environment
+	@test ${expected_stage} || (echo 'expected_stage not set'; exit 1)
+	@[ "${stage}" = "${expected_stage}" ] || (echo "Expected stage ${expected_stage}, actual ${stage}"; exit 1)
+	@echo "good"
+
 .PHONY: environment
 environment: ${stage}.env ##- Define environment variables
 	@test ${stage} || (echo 'stage not set'; exit 1)

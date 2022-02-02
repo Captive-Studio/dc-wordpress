@@ -68,3 +68,18 @@ wordpress-convert-db-to-% : environment wordpress-convert-db-to-%.env ;
 			| gzip > $$MYSQL_DATABASE.sql.gz.converted
 	@$(load_env); mv $$MYSQL_DATABASE.sql.gz $$MYSQL_DATABASE.sql.gz.old-$$(date +%s)
 	@$(load_env); mv $$MYSQL_DATABASE.sql.gz.converted $$MYSQL_DATABASE.sql.gz
+
+.PHONY: wordpress-transfert
+wordpress-transfert: ##- Migrate data from env to env
+wordpress-transfert: check-requirements
+	@test ${from} || (echo 'from not set'; exit 1)
+	@test ${to} || (echo 'to not set'; exit 1)
+	@echo $(MAKE) \
+		-e stage=${from} \
+		wordpress-dump-mariadb \
+		wordpress-dump-wp-content \
+		wordpress-convert-db-to-${to}
+	@echo $(MAKE) \
+		-e stage=${to} \
+		wordpress-restore-mariadb \
+		wordpress-restore-wp-content

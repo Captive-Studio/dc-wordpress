@@ -53,44 +53,24 @@ local-restrict-access-wp-content: ##- Restrict access to wp-content files
 .PHONY: transfert-staging-to-default
 transfert-staging-to-default: ##- Migrate data from staging to default env
 transfert-staging-to-default: check-requirements
-	@$(MAKE) \
-		stage-staging \
-		check-stage-staging \
-		wordpress-dump-mariadb \
-		wordpress-dump-wp-content \
-		wordpress-convert-db-to-default
-	@$(MAKE) \
-		stage-default \
-		check-stage-default \
-		wordpress-restore-mariadb \
-		wordpress-restore-wp-content
+	@$(MAKE) -e from=staging to=default wordpress-transfert
 
 .PHONY: transfert-default-to-staging
 transfert-default-to-staging: ##- Migrate data from default to staging env
 transfert-default-to-staging: check-requirements
-	@$(MAKE) \
-		stage-default \
-		check-stage-default \
-		wordpress-dump-mariadb \
-		wordpress-dump-wp-content \
-		wordpress-convert-db-to-staging
-	@$(MAKE) \
-		stage-staging \
-		check-stage-staging \
-		wordpress-restore-mariadb \
-		wordpress-restore-wp-content
+	@$(MAKE) -e from=default to=staging wordpress-transfert
 
 .PHONY: transfert-default-to-production
 transfert-default-to-production: ##- Migrate data from default to production env
 transfert-default-to-production: check-requirements
-	@$(MAKE) \
-		stage-default \
-		check-stage-default \
-		wordpress-dump-mariadb \
-		wordpress-dump-wp-content \
-		wordpress-convert-db-to-production
-	@$(MAKE) \
-		stage-production \
-		check-stage-production \
-		wordpress-restore-mariadb \
-		wordpress-restore-wp-content
+	@$(MAKE) -e from=default to=production wordpress-transfert
+
+.PHONY: transfert-staging-to-production
+transfert-staging-to-production: ##- Migrate data from staging to production env
+transfert-staging-to-production: check-requirements
+	@$(MAKE) -e from=staging to=production wordpress-transfert
+
+.PHONY: transfert-production-to-staging
+transfert-production-to-staging: ##- Migrate data from production to staging env
+transfert-production-to-staging: check-requirements
+	@$(MAKE) -e from=production to=staging wordpress-transfert
